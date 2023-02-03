@@ -19,6 +19,7 @@ variable "vpc_cidr_block" {}
 variable "subnet_cidr_block" {}
 variable "avail_zone" {}
 variable "env_prefix" {}
+variable "myip" {}
 
 #creates custome vpc
 resource "aws_vpc" "myapp-vpc" {
@@ -92,5 +93,6 @@ resource "aws_default_security_group" "default-myapp-sg" {
         environmet = var.env_prefix[1]
     }
 }
+
 
 
