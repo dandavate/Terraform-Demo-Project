@@ -19,6 +19,7 @@ variable "vpc_cidr_block" {}
 variable "subnet_cidr_block" {}
 variable "avail_zone" {}
 variable "env_prefix" {}
+variable "myip" {}
 
 #creates custome vpc
 resource "aws_vpc" "myapp-vpc" {
@@ -71,3 +72,32 @@ resource "aws_route_table_association" "myapp-rtb-association" {
     route_table_id = aws_route_table.myapp-route-table.id
 }
 
+# create security group
+# ingress for incomming traffic
+# egress for outgoing traffic
+resource "aws_security_group" "myapp-sg" {
+    name = "myapp-sg"
+    vpc_id = aws_vpc.myapp-vpc.id
+    ingress  {
+      cidr_blocks = [var.myip]
+      from_port = 22
+      protocol = "tcp"
+      to_port = 22
+    } 
+    ingress  {
+      cidr_blocks = ["0.0.0.0/0"]
+      from_port = 8080
+      protocol = "tcp"
+      to_port = 8080
+    } 
+    egress {
+      cidr_blocks = ["0.0.0.0/0"]
+      from_port = 0
+      protocol = "-1"
+      to_port = 0
+    }
+    tags = {
+        Name = "${var.env_prefix[0]}-myapp-sg"
+        environmet = var.env_prefix[1]
+    }
+}
