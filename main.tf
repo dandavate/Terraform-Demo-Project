@@ -64,3 +64,33 @@ resource "aws_default_route_table" "myapp-default-rtb" {
     }
 }
 
+# modify default myapp security group
+# ingress for incomming traffic
+# egress for outgoing traffic
+resource "aws_default_security_group" "default-myapp-sg" {
+    vpc_id = aws_vpc.myapp-vpc.id
+    ingress  {
+      cidr_blocks = [var.myip]
+      from_port = 22
+      protocol = "tcp"
+      to_port = 22
+    } 
+    ingress  {
+      cidr_blocks = ["0.0.0.0/0"]
+      from_port = 8080
+      protocol = "tcp"
+      to_port = 8080
+    } 
+    egress {
+      cidr_blocks = ["0.0.0.0/0"]
+      from_port = 0
+      protocol = "-1"
+      to_port = 0
+    }
+    tags = {
+        Name = "${var.env_prefix[0]}-myapp-default-sg"
+        environmet = var.env_prefix[1]
+    }
+}
+
+
