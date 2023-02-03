@@ -49,24 +49,3 @@ resource "aws_internet_gateway" "myapp-internet-gateway" {
     }
 }
 
-#Create route table
-# internal route will create automatically
-# define external route
-resource "aws_route_table" "myapp-route-table" {
-    vpc_id = aws_vpc.myapp-vpc.id
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.myapp-internet-gateway.id
-    }
-    tags = {
-        Name = "${var.env_prefix[0]}-rtb"
-        environmet = var.env_prefix[1]
-    }
-  
-}
-
-# route table association with subnet
-resource "aws_route_table_association" "myapp-rtb-association" {
-    subnet_id = aws_subnet.myapp-subnet-1.id
-    route_table_id = aws_route_table.myapp-route-table.id
-}
