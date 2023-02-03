@@ -64,3 +64,9 @@ resource "aws_route_table" "myapp-route-table" {
     }
   
 }
+
+# route table association with subnet
+resource "aws_route_table_association" "myapp-rtb-association" {
+    subnet_id = aws_subnet.myapp-subnet-1.id
+    route_table_id = aws_route_table.myapp-route-table.id
+}
