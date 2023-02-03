@@ -49,7 +49,9 @@ resource "aws_internet_gateway" "myapp-internet-gateway" {
     }
 }
 
-# get default vpc object using this command $ terraform state show aws_vpc.myapp-vpc    
+# get default vpc object using this command
+#$ terraform state show aws_vpc.myapp-vpc
+# subnet will associate automatically in default route table    
 resource "aws_default_route_table" "myapp-default-rtb" {
     default_route_table_id = aws_vpc.myapp-vpc.default_route_table_id
      route {
