@@ -20,6 +20,8 @@ variable "subnet_cidr_block" {}
 variable "avail_zone" {}
 variable "env_prefix" {}
 variable "myip" {}
+variable "instance_type" {}
+variable "public_key_location" {}
 
 #creates custome vpc
 resource "aws_vpc" "myapp-vpc" {
@@ -111,7 +113,7 @@ data "aws_ami" "latest-ami" {
 # create ssh-key
 resource "aws_key_pair" "ssh-key" {
     key_name = "server-key"
-    public_key = "${file(var.public_key_location)}"
+    public_key = file(var.public_key_location)
   
 }
 
