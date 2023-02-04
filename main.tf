@@ -20,6 +20,8 @@ variable "subnet_cidr_block" {}
 variable "avail_zone" {}
 variable "env_prefix" {}
 variable "myip" {}
+variable "instance_type" {}
+
 
 #creates custome vpc
 resource "aws_vpc" "myapp-vpc" {
@@ -97,7 +99,41 @@ resource "aws_security_group" "myapp-sg" {
       to_port = 0
     }
     tags = {
-        Name = "${var.env_prefix[0]}-myapp-sg"
+        Name = "${var.env_prefix[0]}-sg"
         environmet = var.env_prefix[1]
     }
 }
+
+# fetch AMI 
+data "aws_ami" "latest-ami" {
+    most_recent = true
+    owners = ["amazon"]
+    filter {
+        name = "name"
+        values = [ "amzn2-ami-kernel-*-x86_64-gp2" ]
+    }
+    filter {
+        name = "virtualization-type"
+        values = ["hvm"]
+    }
+}
+
+# create instance
+resource "aws_instance" "myapp-server" {
+    ami = data.aws_ami.latest-ami.id
+    instance_type = var.instance_type
+    
+    subnet_id = aws_subnet.myapp-subnet-1.id
+    vpc_security_group_ids = [aws_security_group.myapp-sg.id]
+
+    availability_zone = var.avail_zone[0]
+    associate_public_ip_address = true
+
+    key_name = "devops-project"
+    
+    tags = {
+         Name = "${var.env_prefix[0]}-server"
+         environmet = var.env_prefix[1]
+    }
+}
+
