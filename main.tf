@@ -21,6 +21,7 @@ variable "avail_zone" {}
 variable "env_prefix" {}
 variable "myip" {}
 variable "instance_type" {}
+variable "public_key_location" {}
 
 
 #creates custome vpc
@@ -118,6 +119,13 @@ data "aws_ami" "latest-ami" {
     }
 }
 
+# create ssh-key
+resource "aws_key_pair" "ssh-key" {
+    key_name = "server-key"
+    public_key = file(var.public_key_location)
+  
+}
+
 # create instance
 resource "aws_instance" "myapp-server" {
     ami = data.aws_ami.latest-ami.id
@@ -129,7 +137,9 @@ resource "aws_instance" "myapp-server" {
     availability_zone = var.avail_zone[0]
     associate_public_ip_address = true
 
-    key_name = "devops-project"
+    key_name = aws_key_pair.ssh-key.key_name
+
+    user_data = file("user-data-script.sh")
     
     tags = {
          Name = "${var.env_prefix[0]}-server"
@@ -137,3 +147,6 @@ resource "aws_instance" "myapp-server" {
     }
 }
 
+output "ec2_public_ip" {
+    value = aws_instance.myapp-server.public_ip
+}
