@@ -22,6 +22,7 @@ variable "env_prefix" {}
 variable "myip" {}
 variable "instance_type" {}
 variable "public_key_location" {}
+variable "private_key_location" {}
 
 #creates custome vpc
 resource "aws_vpc" "myapp-vpc" {
@@ -130,7 +131,22 @@ resource "aws_instance" "myapp-server" {
 
     key_name = aws_key_pair.ssh-key.key_name
 
-    user_data = file("user-data-script.sh")
+    connection {
+      type = "ssh"
+      host = self.public_ip
+      user = "ec2-user"
+      private_key = file(var.private_key_location)
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+            "sudo yum update -y",
+            "sudo yum install -y docker",
+            "sudo systemctl start docker",
+            "sudo systemctl enable docker",
+            "sudo docker run -d -p 8080:80 --name my-nginx nginx"
+        ]
+    }
                                   
     tags = {
          Name = "${var.env_prefix[0]}-server"
@@ -141,6 +157,5 @@ resource "aws_instance" "myapp-server" {
 output "ec2_public_ip" {
     value = aws_instance.myapp-server.public_ip
 }
-
 
 
