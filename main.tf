@@ -138,14 +138,14 @@ resource "aws_instance" "myapp-server" {
       private_key = file(var.private_key_location)
     }
 
+    provisioner "file" {
+      source = "user-data-script.sh"
+      destination = "/home/ec2-user/user-data-script.sh"
+    }
+
     provisioner "remote-exec" {
-        inline = [
-            "sudo yum update -y",
-            "sudo yum install -y docker",
-            "sudo systemctl start docker",
-            "sudo systemctl enable docker",
-            "sudo docker run -d -p 8080:80 --name my-nginx nginx"
-        ]
+       inline = ["sudo chmod +x /home/ec2-user/user-data-script.sh",
+                "sh /home/ec2-user/user-data-script.sh "]
     }
                                   
     tags = {
